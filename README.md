@@ -1,1 +1,1 @@
-FINAST: A Finance Assistant
+# **FINAST: A Finance Assistant**
