@@ -133,6 +133,7 @@ class OpenAIPDFParser:
     def _handle_client_response(self,
                                 idx: int,
                                 response: Union[Response, ParsedChatCompletion]) -> PageResponse:
+        """A handle function that parse the OpenAI client response and return a PageResponse object."""
         if isinstance(response, Response):
             # Track the cost of the API call
             cost = CostTracker.track_cost(
@@ -263,10 +264,6 @@ class OpenAIPDFParser:
         """Parse a pdf into markdown format."""
         # Convert all pages of the pdf into images
         images = convert_from_path(pdf_path=pdf_path)
-        
-        # Define the outputs
-        outputs = []
-        text = ""
 
         # Convert the images into markdown format in parallel
         tasks = [
