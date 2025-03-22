@@ -15,13 +15,61 @@ from openai.types.responses import Response
 from openai.types.chat import ParsedChatCompletion
 from openai._types import NOT_GIVEN
 
-from finast.models.responses import ParserResponse, PageResponse, ImageObject
-from finast.models.FLC.parent_finstate import SeperateCashFlowStatement
-from finast.utils import CostTracker, ImageAugmentor
+from finast.models.responses import ParserResponse, BatchResponse, ImageObject
+from finast.models.FLC.finstate import SeperateCashFlowStatement
+from finast.utils import CostTracker, ImageProcessor
+from finast.interfaces import BaseParser
 
 from loguru import logger
 
-class OpenAIPDFParser:
+class OpenAIPDFParser(BaseParser):
+    """
+    A class that handles the PDF parsing using the OpenAI API.
+
+    Args:
+        client (OpenAI): The OpenAI client object.
+        mode (Literal["html", "markdown", "tabular"]): The desired output
+
+    ## Pipeline:
+    1. Convert the PDF into images.
+    2. Load the images into batches.
+    3. Preprocess the images (eg: rotate and enhance).
+    3. Convert the images into base64 strings.
+    4. Send the images to the OpenAI API for parsing.
+    5. Handle the responses and calculate the cost.
+    6. Return the parsed response object.
+
+    Examples:
+    ```python
+    import asyncio
+    from openai import OpenAI
+    from dotenv import load_dotenv
+    import io
+    from PIL import Image
+    from pprint import pprint
+    from finast.core import OpenAIPDFParser
+    import json
+
+    load_dotenv()
+
+    client = OpenAI()
+        
+    async def main():
+        pdf_parser = OpenAIPDFParser(
+            client=client,
+            mode="tabular"
+        )
+
+        output = await pdf_parser.async_parse_pdf(
+            pdf_path="docs/FLC_Baocaotaichinh_Q4_2020_Hopnhat_cashflow.pdf"
+        )
+        
+        with open("output/cashflow_2020.json", "w") as f:
+            json.dump(output.model_dump(), f, indent=4, ensure_ascii=False)
+
+    if __name__ == "__main__":
+        asyncio.run(main())
+    """
     def __init__(self, 
                  client: OpenAI,
                  mode: Literal["html", "markdown", "tabular"] = "tabular") -> None:
@@ -29,8 +77,16 @@ class OpenAIPDFParser:
         self.mode = mode
 
     def _validate_image_path(self, 
-                             image_path: str) -> str:
-        """Validate that the file is a JPG, JPEG, or PNG."""
+                             image_path: str) -> Literal["image/jpeg", "image/png"]:
+        """
+        Validate that the file is a JPG, JPEG, or PNG.
+
+        Args:
+            image_path (str): The path to the image file.
+
+        Returns:
+            Literal["image/jpeg", "image/png"]: The mime type of the image.
+        """
         valid_mime_types = {"image/jpeg", "image/png"}
         file_type = mimetypes.guess_type(image_path)[0]
         
@@ -41,13 +97,29 @@ class OpenAIPDFParser:
 
     def _encode_image(self, 
                       image: Image.Image) -> str:
-        """Encode the image into a base64 string."""
+        """
+        Encode the image into a base64 string.
+
+        Args:
+            image (Image.Image): The PIL image object.
+
+        Returns:
+            str: The base64-encoded image string.
+        """
         encoded_string = base64.b64encode(image).decode('utf-8')
         return encoded_string
     
     def _construct_png(self, 
                       image: Image.Image) -> bytes:
-        """Construct a valid PNG image from the PIL image."""
+        """
+        Construct a valid PNG image from the PIL image.
+
+        Args:
+            image (Image.Image): The PIL image object.
+        
+        Returns:
+            bytes: The .PNG image bytes.
+        """
         buffer = io.BytesIO()
         image.save(buffer, format="PNG")
         return buffer.getvalue()
@@ -55,7 +127,16 @@ class OpenAIPDFParser:
     def _batch_loader(self,
                       images: list[Image.Image],
                       batch_size: int = 3) -> list[Image.Image]:
-        """Load a batch of images into memory."""
+        """
+        Load a batch of images into memory.
+
+        Args:
+            images (list[Image.Image]): The list of images.
+            batch_size (int): The batch size for the image loader.
+
+        Returns:
+            list[Image.Image]: The list of image batches.
+        """
         
         batches = []
 
@@ -65,9 +146,12 @@ class OpenAIPDFParser:
 
         return batches
     
+    # TODO: Generalize the function to accept multiple table formats! SeperateCashFlowStatement is just one of them.
     def _parse_client_response(self,
                                base64_images: list[str]) -> ParsedChatCompletion[SeperateCashFlowStatement]:
-        """Request the OpenAI API to parse image into a structured format."""
+        """
+        Request the OpenAI API to parse image into the SeperateCashFlowStatement format.
+        """
         image_objects = [ImageObject(base64_image=image).image_url_dict for image in base64_images]
 
         input_payload = [
@@ -101,7 +185,16 @@ class OpenAIPDFParser:
     def _create_client_response(self,
                                 base64_images: list[str],
                                 mode: Literal["html", "markdown"] = "html") -> Response:
-        """Request the OpenAI API to convert the image into markdown format."""
+        """
+        A function that create a request to OpenAI API to convert the image into **markdown** or **html** format.
+        
+        Args:
+            base64_images (list[str]): The list of base64-encoded images.
+            mode (Literal["html", "markdown"]): The desired output format.
+        
+        Returns:
+            Response: The response object from the OpenAI API
+        """
         # Construct the prompt based on the mode
         if mode == "markdown":
             mode_prompt = "Please convert this image into markdown format. For tables, use the html format."
@@ -118,6 +211,7 @@ class OpenAIPDFParser:
                     You are a professional senior accountant. 
                     {mode_prompt}
                     You MUST preserve the table structure (if any) in the output and all its values.
+                    Do not include the special markdown '```' in the output.
                     If the value in the table is wrapped in parentheses, it is negative. 
                     If you don't, the company will lose money or even have to face legal consequences.
                 """
@@ -138,8 +232,19 @@ class OpenAIPDFParser:
     
     def _handle_client_response(self,
                                 idx: int,
-                                response: Union[Response, ParsedChatCompletion]) -> PageResponse:
-        """A handle function that parse the OpenAI client response and return a PageResponse object."""
+                                response: Union[Response, ParsedChatCompletion]) -> BatchResponse:
+        """
+        A handle function that calculates the cost of the API call based on the response type and model used.
+
+        Args:
+            idx (int): The index of the batch.
+            response (Union[Response, ParsedChatCompletion]): The response object from OpenAI API.
+
+        Returns:
+            BatchResponse: The parsed response object containing the batch index, content received from OpenAI, and cost.
+        """
+
+
         if isinstance(response, Response):
             # Track the cost of the API call
             cost = CostTracker.track_cost(
@@ -148,13 +253,13 @@ class OpenAIPDFParser:
                 model_name="gpt-4o",
             )
 
-            page_response = PageResponse(
+            batch_response = BatchResponse(
                 page=idx,
                 content=response,
                 cost=cost
             )
 
-            return page_response
+            return batch_response
         
         elif isinstance(response, ParsedChatCompletion):
             cost = CostTracker.track_cost(
@@ -163,32 +268,42 @@ class OpenAIPDFParser:
                 model_name="gpt-4o"
             )
 
-            page_response = PageResponse(
+            batch_response = BatchResponse(
                 page=idx,
                 content=response,
                 cost=cost
             )
 
-            return page_response
+            return batch_response
         
     async def _async_image_parser(self, 
                                  idx: int,
                                  images: list[Image.Image],
                                  mode: Literal["html", "markdown", "tabular"] = "tabular"
-                                 ) -> PageResponse:
-        """Convert an image into markdown format."""
+                                 ) -> BatchResponse:
+        """
+        The core function that handles the image preprocessing and create request to the OpenAI API for parsing.
+        
+        Args:
+            idx (int): The index of the image.
+            images (list[Image.Image]): The list of images.
+            mode (Literal["html", "markdown", "tabular"]): The desired output format.
+        
+        Returns:
+            BatchResponse: The parsed response object containing the batch index, content received from OpenAI, and cost.
+        """
         
         processed_images = []
 
         # Image preprocessing logic (rotate and enhance)
         for image in images:
-            image = ImageAugmentor.rotate_image(
+            image = ImageProcessor.rotate_image(
                 image=image,
                 method="hough"
             )
 
             # Enhance the image
-            image = ImageAugmentor.enhance_image(image=image)
+            image = ImageProcessor.enhance_image(image=image)
             
             # Convert the image into a PNG
             image_png = self._construct_png(image=image)
@@ -220,23 +335,35 @@ class OpenAIPDFParser:
         #with open("misc_output/parsed_response.json", "r") as f:
         #    response = ParsedChatCompletion(**json.load(f))
 
-        page_response = self._handle_client_response(
+        # Calculate the cost of the API call
+        batch_response = self._handle_client_response(
             idx=idx,
             response=response,
         )
 
-        return page_response
+        return batch_response
     
     def _handle_responses(self,
-                          responses: list[PageResponse],
+                          responses: list[BatchResponse],
                           mode: Literal["html", "markdown", "tabular"] = "tabular") -> ParserResponse:
-        """Handle the responses from the OpenAI API."""
+        """
+        Handle the responses usage information based on the response type in the PageReponse object.
+        Supported formats: HTML, Markdown, and Tabular.
+
+        Args:
+            responses (list[BatchResponse]): The list of BatchResponse objects.
+            mode (Literal["html", "markdown", "tabular"]): The desired output format.
+
+        Returns:
+            ParserResponse: The parsed response object.
+        """
                     # Calculate the total cost of the API calls
         total_cost = sum(response.cost for response in responses)
         
         # Calculate the total number of pages
         total_pages = len(responses)
         
+        # Calculate the total number of input tokens based on the response type
         if isinstance(responses[0].content, ParsedChatCompletion):
             logger.info("Handling ParsedChatCompletion responses.")
             # Calculate the total number of input tokens
@@ -277,7 +404,51 @@ class OpenAIPDFParser:
                               pdf_path: str,
                               batch_size: int = 3,
                               mode: Literal["html", "markdown", "tabular"] = "tabular") -> ParserResponse:
-        """Parse the PDF file into the desired format."""
+        """
+        Parse the PDF file into the desired format.
+        Supported formats: HTML, Markdown, and Tabular.
+
+        Args:
+            pdf_path (str): The path to the PDF file.
+            batch_size (int): The batch size for the image loader.
+            mode (Literal["html", "markdown", "tabular"]): The desired output format.
+        
+        Returns:
+            ParserResponse: The parsed response object.
+
+        ```python
+        import asyncio
+        from openai import OpenAI
+        from dotenv import load_dotenv
+        import io
+        from PIL import Image
+        from pprint import pprint
+        from finast.core import OpenAIPDFParser
+        import json
+
+        load_dotenv()
+
+        client = OpenAI()
+            
+        async def main():
+            pdf_parser = OpenAIPDFParser(
+                client=client,
+                mode="tabular"
+            )
+
+            output = await pdf_parser.async_parse_pdf(
+                pdf_path="docs/finance_report.pdf"
+            )
+            
+            with open("output.json", "w") as f:
+                json.dump(output.model_dump(), f, indent=4, ensure_ascii=False)
+
+        if __name__ == "__main__":
+            asyncio.run(main())
+        ```
+        """
+
+        # Set the mode if provided
         if mode:
             self.mode = mode
 
@@ -304,7 +475,7 @@ class OpenAIPDFParser:
         responses = await asyncio.gather(*tasks)
 
         # Sort the responses by the original page order
-        responses = sorted(responses, key=lambda x: x.page)
+        responses = sorted(responses, key=lambda x: x.index)
 
         # ========================
         #json_responses = [response.model_dump() for _, response in responses]
@@ -317,3 +488,4 @@ class OpenAIPDFParser:
             responses=responses,
             mode=mode
         )
+    

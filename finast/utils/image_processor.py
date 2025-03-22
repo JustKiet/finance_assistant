@@ -6,7 +6,7 @@ from typing import Literal
 from loguru import logger
 from scipy.signal import convolve2d
 
-class ImageAugmentor:
+class ImageProcessor:
     _paddle_ocr = PaddleOCR(use_angle_cls=True, lang="vi")
     
     @staticmethod
@@ -107,7 +107,7 @@ class ImageAugmentor:
         """Detect the rotation angle of an image using PaddleOCR."""
 
         # Preprocess image
-        image = ImageAugmentor.preprocess_image(image)
+        image = ImageProcessor.preprocess_image(image)
 
         # Ensure image is in RGB mode
         if image.mode in ("RGBA", "L"):  
@@ -117,7 +117,7 @@ class ImageAugmentor:
         image_np = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
         # Perform OCR on the image
-        results = ImageAugmentor._paddle_ocr.ocr(image_np, cls=True)
+        results = ImageProcessor._paddle_ocr.ocr(image_np, cls=True)
 
         logger.debug(f"OCR raw results: {results}")  # Debugging info
 
@@ -144,11 +144,11 @@ class ImageAugmentor:
         """Rotate the image based on the detected angle using PaddleOCR."""
 
         if method == "hough":
-            rotation_value = ImageAugmentor.detect_rotation_hough(image)
+            rotation_value = ImageProcessor.detect_rotation_hough(image)
         elif method == "paddle":
-            rotation_value = ImageAugmentor.detect_rotation_paddle(image)
+            rotation_value = ImageProcessor.detect_rotation_paddle(image)
         elif method == "contour":
-            rotation_value = ImageAugmentor.detect_rotation_contour(image)
+            rotation_value = ImageProcessor.detect_rotation_contour(image)
 
         logger.info(f"Applying rotation: {rotation_value}°")
 

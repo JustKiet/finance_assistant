@@ -8,7 +8,7 @@ def test_cost_tracker():
 
 def test_image_augmentor_rotation():
     image = convert_from_path("finast/tests/media/test.pdf")[0]
-    augmented_image = ImageAugmentor.rotate_image(image=image)
+    augmented_image = ImageProcessor.rotate_image(image=image)
     augmented_image.show()
 
 if __name__ == "__main__":
