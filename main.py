@@ -1,9 +1,6 @@
 import asyncio
 from openai import OpenAI
 from dotenv import load_dotenv
-import io
-from PIL import Image
-from pprint import pprint
 from finast.core import OpenAIPDFParser
 import json
 

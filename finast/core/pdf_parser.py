@@ -1,14 +1,11 @@
 import asyncio
-from openai import AzureOpenAI, OpenAI
-from dotenv import load_dotenv
-import os
+from openai import OpenAI
 import base64
 import mimetypes
 from pdf2image import convert_from_path
 import io
 from PIL import Image
 from typing import Literal, Union
-import numpy as np
 import json
 
 from openai.types.responses import Response
@@ -44,9 +41,6 @@ class OpenAIPDFParser(BaseParser):
     import asyncio
     from openai import OpenAI
     from dotenv import load_dotenv
-    import io
-    from PIL import Image
-    from pprint import pprint
     from finast.core import OpenAIPDFParser
     import json
 
@@ -410,8 +404,11 @@ class OpenAIPDFParser(BaseParser):
 
         Args:
             pdf_path (str): The path to the PDF file.
-            batch_size (int): The batch size for the image loader.
-            mode (Literal["html", "markdown", "tabular"]): The desired output format.
+            batch_size (int): The batch size for the image loader. (default: 3)
+            mode (Literal["html", "markdown", "tabular"]): The desired output format. (default: "tabular")
+                - "html": Convert the image into HTML format.
+                - "markdown": Convert the image into markdown format.
+                - "tabular": Convert the image into a pydantic schema format. **(Recommended)**
         
         Returns:
             ParserResponse: The parsed response object.
@@ -420,9 +417,6 @@ class OpenAIPDFParser(BaseParser):
         import asyncio
         from openai import OpenAI
         from dotenv import load_dotenv
-        import io
-        from PIL import Image
-        from pprint import pprint
         from finast.core import OpenAIPDFParser
         import json
 

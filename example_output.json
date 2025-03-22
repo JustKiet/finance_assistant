@@ -1,0 +1,624 @@
+{
+    "total_pages": 1,
+    "total_input_tokens": 2345,
+    "total_output_tokens": 2219,
+    "total_cost": 0.0280525,
+    "content": [
+        {
+            "title": "BÁO CÁO LƯU CHUYỂN TIỀN TỆ RIÊNG",
+            "description": "Theo phương pháp gián tiếp - Cho kỳ kế toán kết thúc ngày 30 tháng 09 năm 2022",
+            "period_end_date": "30 tháng 09 năm 2022",
+            "calculation_unit": "VND",
+            "quarter": "Q3",
+            "year": 2022,
+            "data": [
+                {
+                    "section_title": "Lưu chuyển tiền từ hoạt động kinh doanh",
+                    "section_data": [
+                        {
+                            "subsection_title": "Lợi nhuận trước thuế",
+                            "subsection_data": [
+                                {
+                                    "bullet_point": "Lợi nhuận trước thuế",
+                                    "bullet_data": {
+                                        "id": 1,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -1863058962083.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": 182878179529.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Điều chỉnh cho các khoản:",
+                                    "bullet_data": {
+                                        "id": 2,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 70494256305.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": 74501073914.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Các khoản dự phòng",
+                                    "bullet_data": {
+                                        "id": 3,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 159930946661.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -103077611754.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Lãi, lỗ chênh lệch tỷ giá hối đoái do đánh giá lại các khoản mục tiền tệ có gốc ngoại tệ",
+                                    "bullet_data": {
+                                        "id": 4,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 200317794.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Lãi, lỗ từ hoạt động đầu tư",
+                                    "bullet_data": {
+                                        "id": 5,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -209290260288.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -240702908761.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Chi phí lãi vay",
+                                    "bullet_data": {
+                                        "id": 6,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 194241349678.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": 147020999127.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Các khoản điều chỉnh khác",
+                                    "bullet_data": {
+                                        "id": 7,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2021,
+                                                "value": 0.0
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "subsection_title": "Lợi nhuận từ hoạt động kinh doanh trước thay đổi vốn lưu động",
+                            "subsection_data": [
+                                {
+                                    "bullet_point": "Tăng, giảm các khoản phải thu",
+                                    "bullet_data": {
+                                        "id": 9,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -156138596810.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -437807254991.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tăng, giảm hàng tồn kho",
+                                    "bullet_data": {
+                                        "id": 10,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -294654250133.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -169273988196.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tăng, giảm các khoản phải trả",
+                                    "bullet_data": {
+                                        "id": 11,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 461966471797.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": 25761320779.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tăng, giảm chi phí trả trước",
+                                    "bullet_data": {
+                                        "id": 12,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 51390310512.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -56813173097.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tăng, giảm chứng khoán kinh doanh",
+                                    "bullet_data": {
+                                        "id": 13,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 407853452.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": 404694013.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền lãi vay đã trả",
+                                    "bullet_data": {
+                                        "id": 14,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -7066202406.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -98234728567.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Thuế thu nhập doanh nghiệp đã nộp",
+                                    "bullet_data": {
+                                        "id": 15,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -17976135121.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -20488682965.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền thu khác từ hoạt động kinh doanh",
+                                    "bullet_data": {
+                                        "id": 16,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2021,
+                                                "value": 5387500.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền chi khác cho hoạt động kinh doanh",
+                                    "bullet_data": {
+                                        "id": 17,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -947741132.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -1084572752.0
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "net_cash_flow": {
+                        "id": 20,
+                        "subtitle": 0,
+                        "ytd_cumulative": [
+                            {
+                                "year": 2022,
+                                "value": 2822772332425.0
+                            },
+                            {
+                                "year": 2021,
+                                "value": 1853304233250.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "section_title": "Lưu chuyển tiền từ hoạt động đầu tư",
+                    "section_data": [
+                        {
+                            "subsection_title": "Lưu chuyển tiền từ hoạt động đầu tư",
+                            "subsection_data": [
+                                {
+                                    "bullet_point": "Tiền chi để mua sắm, xây dựng tài sản cố định và các tài sản dài hạn khác",
+                                    "bullet_data": {
+                                        "id": 21,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -1289714156787.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -1086758206396.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền thu từ thanh lý, nhượng bán tài sản cố định và các tài sản dài hạn khác",
+                                    "bullet_data": {
+                                        "id": 22,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 1077272727.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền chi cho vay, mua các công cụ nợ của đơn vị khác",
+                                    "bullet_data": {
+                                        "id": 23,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -1676136012368.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -2993564453483.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền thu hồi cho vay, bán lại các công cụ nợ của đơn vị khác",
+                                    "bullet_data": {
+                                        "id": 24,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 368370089731.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": 1505188357017.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền chi đầu tư góp vốn vào đơn vị khác",
+                                    "bullet_data": {
+                                        "id": 25,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -685000000.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -764440000000.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền thu hồi đầu tư góp vốn vào đơn vị khác",
+                                    "bullet_data": {
+                                        "id": 26,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2021,
+                                                "value": 855500000.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền thu lãi cho vay, cổ tức và lợi nhuận được chia",
+                                    "bullet_data": {
+                                        "id": 27,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 130054452269.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": 170756108706.0
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "net_cash_flow": {
+                        "id": 30,
+                        "subtitle": 0,
+                        "ytd_cumulative": [
+                            {
+                                "year": 2022,
+                                "value": -2467032545428.0
+                            },
+                            {
+                                "year": 2021,
+                                "value": -3081432154111.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "section_title": "Lưu chuyển tiền từ hoạt động tài chính",
+                    "section_data": [
+                        {
+                            "subsection_title": "Lưu chuyển tiền từ hoạt động tài chính",
+                            "subsection_data": [
+                                {
+                                    "bullet_point": "Tiền thu từ phát hành cổ phiếu, nhận vốn góp của chủ sở hữu",
+                                    "bullet_data": {
+                                        "id": 31,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 0.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền trả lại vốn góp cho các chủ sở hữu, mua lại cổ phiếu của doanh nghiệp đã phát hành",
+                                    "bullet_data": {
+                                        "id": 32,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 0.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền thu từ đi vay",
+                                    "bullet_data": {
+                                        "id": 33,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": 2333315673797.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": 2278928218626.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền trả nợ gốc vay",
+                                    "bullet_data": {
+                                        "id": 34,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -26080619002.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -1224441742952.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Tiền trả nợ gốc thuê tài chính",
+                                    "bullet_data": {
+                                        "id": 35,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2022,
+                                                "value": -148859079933.0
+                                            },
+                                            {
+                                                "year": 2021,
+                                                "value": -19115260398.0
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "bullet_point": "Cổ tức, lợi nhuận đã trả cho chủ sở hữu",
+                                    "bullet_data": {
+                                        "id": 36,
+                                        "subtitle": 0,
+                                        "ytd_cumulative": [
+                                            {
+                                                "year": 2021,
+                                                "value": 0.0
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "net_cash_flow": {
+                        "id": 40,
+                        "subtitle": 0,
+                        "ytd_cumulative": [
+                            {
+                                "year": 2022,
+                                "value": -290151595138.0
+                            },
+                            {
+                                "year": 2021,
+                                "value": 1035371485276.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "section_title": "Lưu chuyển tiền thuần trong kỳ",
+                    "section_data": [],
+                    "net_cash_flow": {
+                        "id": 50,
+                        "subtitle": 5,
+                        "ytd_cumulative": [
+                            {
+                                "year": 2022,
+                                "value": 6568819159.0
+                            },
+                            {
+                                "year": 2021,
+                                "value": -19473697585.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "section_title": "Tiền và tương đương tiền đầu kỳ",
+                    "section_data": [],
+                    "net_cash_flow": {
+                        "id": 60,
+                        "subtitle": 5,
+                        "ytd_cumulative": [
+                            {
+                                "year": 2022,
+                                "value": 140802775390.0
+                            },
+                            {
+                                "year": 2021,
+                                "value": 294328598651.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "section_title": "Ảnh hưởng của thay đổi tỷ giá hối đoái quy đổi ngoại tệ",
+                    "section_data": [],
+                    "net_cash_flow": {
+                        "id": 61,
+                        "subtitle": 0,
+                        "ytd_cumulative": [
+                            {
+                                "year": 2021,
+                                "value": -17491788.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "section_title": "Tiền và tương đương tiền cuối kỳ",
+                    "section_data": [],
+                    "net_cash_flow": {
+                        "id": 70,
+                        "subtitle": 5,
+                        "ytd_cumulative": [
+                            {
+                                "year": 2022,
+                                "value": 206490967249.0
+                            },
+                            {
+                                "year": 2021,
+                                "value": 99574311278.0
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

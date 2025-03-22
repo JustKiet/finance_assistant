@@ -1,5 +1,9 @@
 # **FINAST: A Finance Assistant**
 
+## ***!VERY IMPORTANT!***
+
+The `OpenAIPDFParser` currently **ONLY WORKS** on a PDF file with tabular data was pre-printed! The parser ***DOES NOT WORK*** on the entire finance report! Refer to `example_input.pdf` for the optimal input. 
+
 ## 1. Getting Started
 
 ### 1.1. Install dependencies
@@ -30,6 +34,7 @@ OPENAI_API_KEY = "Your API Key here"
 - [x] Image Preprocessing.
 - [x] Define parsing logics.
 - [ ] Define a generalized structured format.
+- [ ] Enable multi-document parsing support.
 - [ ] Perform sanity check on OpenAI outputs.
 ### 2.2. Define data visualization features.
 - [ ] Define different graphs for efficient data visualization.
