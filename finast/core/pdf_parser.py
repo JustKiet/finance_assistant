@@ -238,14 +238,14 @@ class OpenAIPDFParser:
         total_pages = len(responses)
         
         if isinstance(responses[0].content, ParsedChatCompletion):
-            logger.debug("Handling ParsedChatCompletion responses.")
+            logger.info("Handling ParsedChatCompletion responses.")
             # Calculate the total number of input tokens
             total_input_tokens = sum(response.content.usage.prompt_tokens for response in responses)
             # Calculate the total number of output tokens
             total_output_tokens = sum(response.content.usage.completion_tokens for response in responses)
         
         elif isinstance(responses[0].content, Response):
-            logger.debug("Handling Response responses.")
+            logger.info("Handling Response responses.")
             # Calculate the total number of input tokens
             total_input_tokens = sum(response.usage.input_tokens for response in responses)
             # Calculate the total number of output tokens
@@ -262,6 +262,8 @@ class OpenAIPDFParser:
 
             for response in responses:
                 outputs.append(response.content.choices[0].message.parsed)
+
+        logger.success(f"Parsing completed. Total cost: {total_cost}.")
 
         return ParserResponse(
             content=outputs,

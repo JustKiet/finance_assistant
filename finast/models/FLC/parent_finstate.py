@@ -8,7 +8,7 @@ class CashFlowCumulativeUnit(BaseModel):
 
 class CashFlowData(BaseModel):
     id: int = Field(..., description="ID")
-    subtitle: int = Field(..., description="Subtitle")
+    subtitle: int = Field(..., description="Subtitle. Leave as 0 if there is no subtitle")
     ytd_cumulative: List[CashFlowCumulativeUnit] = Field(..., description="Year To Date Cumulative Values")
 
 class CashFlowBulletPoint(BaseModel):
@@ -17,12 +17,15 @@ class CashFlowBulletPoint(BaseModel):
     bullet_data: CashFlowData = Field(..., description="Bullet Data Values")
 
 class CashFlowSubSection(BaseModel):
-    subsection_title: str = Field(..., description="Subsection Title")
+    subsection_title: str = Field(..., description="Subsection Title. DO NOT INCLUDE THE SUBSECTION INDEX IN THIS FIELD")
+    subsection_index: int = Field(..., description="Subsection Index")
     subsection_description: str = Field(..., description="Subsection Description (if any). This field tend to have no values associated with it.")
+    subsection_value: Optional[CashFlowData] = Field(..., description="Subsection Value Data (if any)")
     subsection_data: List[CashFlowBulletPoint] = Field(..., description="Subsection Data")
 
 class CashFlowSection(BaseModel):
-    section_title: str = Field(..., description="Section Title")
+    section_title: str = Field(..., description="Section Title. DO NOT INCLUDE THE SECTION INDEX IN THIS FIELD")
+    section_index: int = Field(..., description="Section Index")
     section_description: str = Field(..., description="Section Description (if any). This field tend to have no values associated with it.")
     section_data: List[CashFlowSubSection] = Field(..., description="Section Data")
     net_cash_flow: CashFlowData = Field(..., description="Net Cash Flow")
