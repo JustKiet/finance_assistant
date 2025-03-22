@@ -15,14 +15,11 @@ from openai.types.responses import Response
 from openai.types.chat import ParsedChatCompletion
 from openai._types import NOT_GIVEN
 
-from finast.models.responses import ParserResponse, PageResponse
-from finast.models.FLC.parent_finstate import CashFlowCumulativeUnit, CashFlowData, CashFlowBulletPoint, CashFlowSubSection, CashFlowSection, SeperateCashFlowStatement
+from finast.models.responses import ParserResponse, PageResponse, ImageObject
+from finast.models.FLC.parent_finstate import SeperateCashFlowStatement
 from finast.utils import CostTracker, ImageAugmentor
 
-
-load_dotenv()
-
-client = OpenAI()
+from loguru import logger
 
 class OpenAIPDFParser:
     def __init__(self, 
@@ -48,15 +45,30 @@ class OpenAIPDFParser:
         encoded_string = base64.b64encode(image).decode('utf-8')
         return encoded_string
     
-    def construct_png(self, 
+    def _construct_png(self, 
                       image: Image.Image) -> bytes:
         """Construct a valid PNG image from the PIL image."""
         buffer = io.BytesIO()
         image.save(buffer, format="PNG")
         return buffer.getvalue()
     
+    def _batch_loader(self,
+                      images: list[Image.Image],
+                      batch_size: int = 3) -> list[Image.Image]:
+        """Load a batch of images into memory."""
+        
+        batches = []
+
+        for i in range(0, len(images), batch_size):
+            batch = images[i:i+batch_size]
+            batches.append(batch)
+
+        return batches
+    
     def _parse_client_response(self,
-                               base64_image: str) -> ParsedChatCompletion:
+                               base64_images: list[str]) -> ParsedChatCompletion[SeperateCashFlowStatement]:
+        """Request the OpenAI API to parse image into a structured format."""
+        image_objects = [ImageObject(base64_image=image).image_url_dict for image in base64_images]
 
         input_payload = [
             {
@@ -71,14 +83,7 @@ class OpenAIPDFParser:
             },
             {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/png;base64,{base64_image}"
-                        }
-                    }
-                ]
+                "content": image_objects
             }
         ]
         
@@ -88,16 +93,22 @@ class OpenAIPDFParser:
             response_format=SeperateCashFlowStatement
         )
 
+        with open("misc_output/parsed_response.json", "w") as f:
+            json.dump(response.model_dump(), f, indent=4, ensure_ascii=False)
+
         return response
     
     def _create_client_response(self,
-                                base64_image: str,
+                                base64_images: list[str],
                                 mode: Literal["html", "markdown"] = "html") -> Response:
+        """Request the OpenAI API to convert the image into markdown format."""
         # Construct the prompt based on the mode
-        if self.mode == "markdown":
+        if mode == "markdown":
             mode_prompt = "Please convert this image into markdown format. For tables, use the html format."
-        elif self.mode == "html":
+        elif mode == "html":
             mode_prompt = "Please convert this image into HTML format."
+
+        image_objects = [ImageObject(base64_image=image).input_image_dict for image in base64_images]
 
         # Construct the input payload before sending to OpenAI API
         input_payload = [
@@ -113,12 +124,7 @@ class OpenAIPDFParser:
             },
             {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "input_image",
-                        "image_url": f"data:image/png;base64,{base64_image}"
-                    }
-                ]
+                "content": image_objects
             }
         ]
 
@@ -167,36 +173,52 @@ class OpenAIPDFParser:
         
     async def _async_image_parser(self, 
                                  idx: int,
-                                 image: Image.Image,
+                                 images: list[Image.Image],
+                                 mode: Literal["html", "markdown", "tabular"] = "tabular"
                                  ) -> PageResponse:
         """Convert an image into markdown format."""
-        # Preprocess the image (rotate and enhance)
-        image = ImageAugmentor.rotate_image(
-            image=image,
-            method="hough"
-        )
         
-        # Convert the image into a PNG
-        image_png = self.construct_png(image)
+        processed_images = []
 
-        # Encode the image into a base64 string
-        base64_image = self._encode_image(image_png)
+        # Image preprocessing logic (rotate and enhance)
+        for image in images:
+            image = ImageAugmentor.rotate_image(
+                image=image,
+                method="hough"
+            )
+
+            # Enhance the image
+            image = ImageAugmentor.enhance_image(image=image)
+            
+            # Convert the image into a PNG
+            image_png = self._construct_png(image=image)
+
+            # ===============================
+            # NOTE: For debugging purposes
+            with open(f"output/{idx}.png", "wb") as f:
+                f.write(image_png)
+            # ===============================
+
+            # Encode the image into a base64 string
+            base64_image = self._encode_image(image=image_png)
+
+            processed_images.append(base64_image)
 
         # Create a client response
-        if self.mode == "html" or self.mode == "markdown":
+        if mode == "html" or mode == "markdown":
             response = self._create_client_response(
-                base64_image=base64_image,
-                mode=self.mode
+                base64_images=processed_images,
+                mode=mode
             )
-        elif self.mode == "tabular":
+        elif mode == "tabular":
             response = self._parse_client_response(
-                base64_image=base64_image
+                base64_images=processed_images
             )
 
         # NOTE: Comment out the following code to disable mock response
         # Create a mock response object
-        #with open("output.json", "r") as f:
-        #    response = Response(**json.load(f)[0])
+        #with open("misc_output/parsed_response.json", "r") as f:
+        #    response = ParsedChatCompletion(**json.load(f))
 
         page_response = self._handle_client_response(
             idx=idx,
@@ -206,72 +228,74 @@ class OpenAIPDFParser:
         return page_response
     
     def _handle_responses(self,
-                               responses: list[PageResponse]) -> ParserResponse:
-        if self.mode == "html" or self.mode == "markdown":
-            # Calculate the total cost of the API calls
-            total_cost = sum(response.cost for response in responses)
-
-            # Calculate the total number of pages
-            total_pages = len(responses)
-
+                          responses: list[PageResponse],
+                          mode: Literal["html", "markdown", "tabular"] = "tabular") -> ParserResponse:
+        """Handle the responses from the OpenAI API."""
+                    # Calculate the total cost of the API calls
+        total_cost = sum(response.cost for response in responses)
+        
+        # Calculate the total number of pages
+        total_pages = len(responses)
+        
+        if isinstance(responses[0].content, ParsedChatCompletion):
+            logger.debug("Handling ParsedChatCompletion responses.")
             # Calculate the total number of input tokens
-            total_input_tokens = sum(response.content.usage.input_tokens for response in responses)
-
+            total_input_tokens = sum(response.content.usage.prompt_tokens for response in responses)
             # Calculate the total number of output tokens
-            total_output_tokens = sum(response.content.usage.output_tokens for response in responses)
-
+            total_output_tokens = sum(response.content.usage.completion_tokens for response in responses)
+        
+        elif isinstance(responses[0].content, Response):
+            logger.debug("Handling Response responses.")
+            # Calculate the total number of input tokens
+            total_input_tokens = sum(response.usage.input_tokens for response in responses)
+            # Calculate the total number of output tokens
+            total_output_tokens = sum(response.usage.output_tokens for response in responses)
+        
+        if mode == "html" or mode == "markdown":
             outputs = []
 
             for response in responses:
                 outputs.append(response.content.output_text)
-            
-            return ParserResponse(
-                content=outputs,
-                total_cost=total_cost,
-                total_pages=total_pages,
-                total_input_tokens=total_input_tokens,
-                total_output_tokens=total_output_tokens,
-            )
         
-        elif self.mode == "tabular":
-            # Calculate the total cost of the API calls
-            total_cost = sum(response.cost for response in responses)
-
-            # Calculate the total number of pages
-            total_pages = len(responses)
-
-            # Calculate the total number of input tokens
-            total_input_tokens = sum(response.content.usage.prompt_tokens for response in responses)
-
-            # Calculate the total number of output tokens
-            total_output_tokens = sum(response.content.usage.completion_tokens for response in responses)
-
+        elif mode == "tabular":
             outputs = []
 
             for response in responses:
                 outputs.append(response.content.choices[0].message.parsed)
 
-            return ParserResponse(
-                content=outputs,
-                total_cost=total_cost,
-                total_pages=total_pages,
-                total_input_tokens=total_input_tokens,
-                total_output_tokens=total_output_tokens,
-            )
+        return ParserResponse(
+            content=outputs,
+            total_cost=total_cost,
+            total_pages=total_pages,
+            total_input_tokens=total_input_tokens,
+            total_output_tokens=total_output_tokens,
+        )
     
     async def async_parse_pdf(self, 
-                              pdf_path: str) -> ParserResponse:
-        """Parse a pdf into markdown format."""
+                              pdf_path: str,
+                              batch_size: int = 3,
+                              mode: Literal["html", "markdown", "tabular"] = "tabular") -> ParserResponse:
+        """Parse the PDF file into the desired format."""
+        if mode:
+            self.mode = mode
+
         # Convert all pages of the pdf into images
         images = convert_from_path(pdf_path=pdf_path)
+
+        # Load the images into batches
+        batches = self._batch_loader(
+            images=images,
+            batch_size=batch_size
+        )
 
         # Convert the images into markdown format in parallel
         tasks = [
             self._async_image_parser(
                 idx=idx,
-                image=image,
+                images=image,
+                mode=mode,
             )
-            for idx, image in enumerate(images)
+            for idx, image in enumerate(batches)
         ]
         
         # Wait for all tasks to complete
@@ -288,5 +312,6 @@ class OpenAIPDFParser:
         # ========================
 
         return self._handle_responses(
-            responses=responses
+            responses=responses,
+            mode=mode
         )

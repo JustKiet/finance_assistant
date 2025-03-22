@@ -13,14 +13,17 @@ class CashFlowData(BaseModel):
 
 class CashFlowBulletPoint(BaseModel):
     bullet_point: str = Field(..., description="Bullet Point Title")
+    bullet_description: str = Field(..., description="Bullet Description (if any). This field tend to have no values associated with it.")
     bullet_data: CashFlowData = Field(..., description="Bullet Data Values")
 
 class CashFlowSubSection(BaseModel):
     subsection_title: str = Field(..., description="Subsection Title")
+    subsection_description: str = Field(..., description="Subsection Description (if any). This field tend to have no values associated with it.")
     subsection_data: List[CashFlowBulletPoint] = Field(..., description="Subsection Data")
 
 class CashFlowSection(BaseModel):
     section_title: str = Field(..., description="Section Title")
+    section_description: str = Field(..., description="Section Description (if any). This field tend to have no values associated with it.")
     section_data: List[CashFlowSubSection] = Field(..., description="Section Data")
     net_cash_flow: CashFlowData = Field(..., description="Net Cash Flow")
 
@@ -28,7 +31,7 @@ class SeperateCashFlowStatement(BaseModel):
     title: str = Field(..., description="Title of the Cash Flow Statement")
     description: str = Field(..., description="Description of the Cash Flow Statement")
     period_end_date: str = Field(..., description="Period End Date")
-    calculation_unit: str = Field(..., description="Calculation Unit used in the Cash Flow Statement")
+    calculation_unit: Literal["USD", "VND"] = Field(..., description="Calculation Unit (Currency Unit) used in the Cash Flow Statement")
     quarter: Literal["Q1", "Q2", "Q3", "Q4"] = Field(..., description="Quarter")
     year: int = Field(..., description="Year of the Cash Flow Statement")
     data: List[CashFlowSection] = Field(..., description="Data within the Cash Flow Statement")

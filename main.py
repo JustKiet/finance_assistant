@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import io
 from PIL import Image
 from pprint import pprint
-from finast.services import OpenAIPDFParser
+from finast.core import OpenAIPDFParser
 import json
 
 load_dotenv()
@@ -18,12 +18,11 @@ async def main():
     )
 
     output = await pdf_parser.async_parse_pdf(
-        pdf_path="docs/FLC_Baocaotaichinh_Q3_2022_Congtyme_page_13.pdf"
+        pdf_path="docs/FLC_Baocaotaichinh_Q4_2020_Hopnhat_cashflow.pdf"
     )
     
-    with open("output/output_page_13.json", "w") as f:
+    with open("output/cashflow_2020.json", "w") as f:
         json.dump(output.model_dump(), f, indent=4, ensure_ascii=False)
-    print(json.dumps(output.model_dump(), indent=4))
 
 if __name__ == "__main__":
     asyncio.run(main())

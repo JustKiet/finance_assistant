@@ -3,9 +3,41 @@ from PIL import Image
 import numpy as np
 import cv2
 from typing import Literal
+from loguru import logger
+from scipy.signal import convolve2d
 
 class ImageAugmentor:
     _paddle_ocr = PaddleOCR(use_angle_cls=True, lang="vi")
+    
+    @staticmethod
+    def enhance_image(image: Image.Image) -> Image.Image:
+        """Enhance the image to improve OCR accuracy while preserving fine details."""
+
+        # Convert to numpy array
+        image_np = np.array(image)
+
+        # Convert to grayscale
+        gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+
+        # Apply Bilateral Filtering (denoise while keeping edges)
+        filtered = cv2.bilateralFilter(gray, d=7, sigmaColor=30, sigmaSpace=30)
+
+        # Apply a mild sharpening kernel
+        sharpening_kernel = np.array([
+            [-1, -1, -1],
+            [-1,  9, -1],
+            [-1, -1, -1]
+        ])
+        sharpened = cv2.filter2D(filtered, -1, sharpening_kernel)
+
+        # Use Adaptive Histogram Equalization (CLAHE) for contrast enhancement
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        contrast_enhanced = clahe.apply(sharpened)
+
+        logger.info("Image enhanced (clean, sharp, and balanced).")
+
+        return Image.fromarray(contrast_enhanced)
+
 
     @staticmethod
     def detect_rotation_contour(image: Image.Image) -> float:
@@ -20,7 +52,7 @@ class ImageAugmentor:
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         if not contours:
-            print("⚠️ No text detected.")
+            logger.warning("No text detected.")
             return 0
 
         # Get the minimum area bounding box for the largest contour
@@ -32,7 +64,7 @@ class ImageAugmentor:
         if angle < -45:
             angle += 90
 
-        print(f"Detected rotation angle: {angle}°")
+        logger.info(f"Detected rotation angle: {angle}°")
         return angle
 
     @staticmethod
@@ -48,7 +80,7 @@ class ImageAugmentor:
         lines = cv2.HoughLines(edges, 1, np.pi / 180, 200)
         
         if lines is None:
-            print("⚠️ No lines detected.")
+            logger.warning("No lines detected.")
             return 0  # No rotation needed
 
         # Compute the dominant angle
@@ -67,23 +99,8 @@ class ImageAugmentor:
         else:
             corrected_angle = 0  # No rotation needed
 
-        print(f"Detected skew: {avg_angle}° -> Rotating by {corrected_angle}°")
+        logger.info(f"Detected skew: {avg_angle}° -> Rotating by {corrected_angle}°")
         return corrected_angle
-
-    @staticmethod
-    def preprocess_image(image: Image.Image):
-        """Preprocess the image to improve OCR accuracy."""
-        image_np = np.array(image)
-
-        # Convert to grayscale
-        gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-
-        # Apply adaptive thresholding (helps with light text on dark background)
-        processed = cv2.adaptiveThreshold(
-            gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
-        )
-
-        return Image.fromarray(processed)
 
     @staticmethod
     def detect_rotation_paddle(image: Image.Image) -> float | Literal[0]:
@@ -102,22 +119,22 @@ class ImageAugmentor:
         # Perform OCR on the image
         results = ImageAugmentor._paddle_ocr.ocr(image_np, cls=True)
 
-        print(f"OCR raw results: {results}")  # Debugging info
+        logger.debug(f"OCR raw results: {results}")  # Debugging info
 
         # Handle None or empty case
         if results is None or all(not result for result in results):
-            print("⚠️ No text detected.")
+            logger.warning("No text detected.")
             return 0
 
         # Extract detected angles
         angles = [line[1][1] for result in results if result for line in result]
 
         if not angles:
-            print("⚠️ No angles detected.")
+            logger.warning("No angles detected.")
             return 0
 
         detected_angle = sum(angles) / len(angles)
-        print(f"Detected rotation angle: {detected_angle}")
+        logger.info(f"Detected rotation angle: {detected_angle}")
 
         return detected_angle
 
@@ -133,7 +150,7 @@ class ImageAugmentor:
         elif method == "contour":
             rotation_value = ImageAugmentor.detect_rotation_contour(image)
 
-        print(f"Applying rotation: {rotation_value}°")
+        logger.info(f"Applying rotation: {rotation_value}°")
 
         if rotation_value == 0:
             return image  # No rotation needed
