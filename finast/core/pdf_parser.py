@@ -248,7 +248,7 @@ class OpenAIPDFParser(BaseParser):
             )
 
             batch_response = BatchResponse(
-                page=idx,
+                index=idx,
                 content=response,
                 cost=cost
             )
@@ -263,7 +263,7 @@ class OpenAIPDFParser(BaseParser):
             )
 
             batch_response = BatchResponse(
-                page=idx,
+                index=idx,
                 content=response,
                 cost=cost
             )
